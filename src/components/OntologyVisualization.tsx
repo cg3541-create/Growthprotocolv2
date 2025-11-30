@@ -1,134 +1,57 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Database, Table, Link2, ChevronRight, Search, Filter, Download, Maximize2, ZoomIn, ZoomOut } from "lucide-react";
+import { getOntologyData } from "../services/claudeApi";
 
 interface OntologyNode {
   id: string;
   name: string;
-  type: 'entity' | 'attribute' | 'relationship';
-  category: string;
+  type: string;
   description: string;
-  connections: string[];
-  fields?: string[];
+  attributes: string[];
 }
 
-const ontologyData: OntologyNode[] = [
-  {
-    id: "company",
-    name: "Company",
-    type: "entity",
-    category: "Core Entities",
-    description: "Company information and profiles",
-    connections: ["product", "market", "financials"],
-    fields: ["company_id", "name", "industry", "founded_date", "headquarters", "employee_count"]
-  },
-  {
-    id: "product",
-    name: "Product",
-    type: "entity",
-    category: "Core Entities",
-    description: "Product catalog and specifications",
-    connections: ["company", "pricing", "features"],
-    fields: ["product_id", "name", "category", "launch_date", "description"]
-  },
-  {
-    id: "market",
-    name: "Market",
-    type: "entity",
-    category: "Market Data",
-    description: "Market segments and trends",
-    connections: ["company", "competitor", "trends"],
-    fields: ["market_id", "segment", "size", "growth_rate", "region"]
-  },
-  {
-    id: "competitor",
-    name: "Competitor",
-    type: "entity",
-    category: "Competitive Intelligence",
-    description: "Competitor analysis and tracking",
-    connections: ["market", "pricing", "features"],
-    fields: ["competitor_id", "name", "market_share", "strengths", "weaknesses"]
-  },
-  {
-    id: "pricing",
-    name: "Pricing",
-    type: "entity",
-    category: "Financial Data",
-    description: "Pricing strategies and data",
-    connections: ["product", "competitor"],
-    fields: ["pricing_id", "product_id", "price", "currency", "discount", "effective_date"]
-  },
-  {
-    id: "financials",
-    name: "Financials",
-    type: "entity",
-    category: "Financial Data",
-    description: "Financial metrics and performance",
-    connections: ["company"],
-    fields: ["financial_id", "revenue", "profit", "quarter", "year", "growth_rate"]
-  },
-  {
-    id: "features",
-    name: "Features",
-    type: "entity",
-    category: "Product Data",
-    description: "Product features and capabilities",
-    connections: ["product", "competitor"],
-    fields: ["feature_id", "name", "category", "availability", "rating"]
-  },
-  {
-    id: "trends",
-    name: "Market Trends",
-    type: "entity",
-    category: "Market Data",
-    description: "Industry trends and insights",
-    connections: ["market"],
-    fields: ["trend_id", "name", "direction", "impact", "timeframe"]
-  },
-  {
-    id: "customer",
-    name: "Customer",
-    type: "entity",
-    category: "Customer Data",
-    description: "Customer profiles and behavior",
-    connections: ["sentiment", "engagement"],
-    fields: ["customer_id", "segment", "acquisition_date", "lifetime_value", "churn_risk"]
-  },
-  {
-    id: "sentiment",
-    name: "Sentiment",
-    type: "entity",
-    category: "Customer Data",
-    description: "Customer sentiment analysis",
-    connections: ["customer"],
-    fields: ["sentiment_id", "score", "source", "date", "topic"]
-  },
-  {
-    id: "engagement",
-    name: "Engagement",
-    type: "entity",
-    category: "Customer Data",
-    description: "Customer engagement metrics",
-    connections: ["customer"],
-    fields: ["engagement_id", "channel", "frequency", "duration", "conversion_rate"]
-  }
-];
-
-const categories = Array.from(new Set(ontologyData.map(node => node.category)));
+interface OntologyRelationship {
+  from: string;
+  to: string;
+  relationship: string;
+  description: string;
+}
 
 export function OntologyVisualization() {
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [zoom, setZoom] = useState(1);
+  const [nodes, setNodes] = useState<OntologyNode[]>([]);
+  const [relationships, setRelationships] = useState<OntologyRelationship[]>([]);
 
-  const filteredNodes = ontologyData.filter(node => {
+  useEffect(() => {
+    // Load ontology data
+    const ontologyData = getOntologyData();
+    if (ontologyData) {
+      setNodes(ontologyData.ontology.entities.map((entity: any) => ({
+        id: entity.id,
+        name: entity.type,
+        type: entity.type,
+        description: entity.description,
+        attributes: entity.attributes
+      })));
+      setRelationships(ontologyData.ontology.relationships);
+    }
+  }, []);
+
+  const filteredNodes = nodes.filter(node => {
     const matchesSearch = node.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          node.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === "all" || node.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+    return matchesSearch;
   });
 
-  const selectedNodeData = selectedNode ? ontologyData.find(n => n.id === selectedNode) : null;
+  const selectedNodeData = selectedNode ? nodes.find(n => n.id === selectedNode) : null;
+  
+  // Get connections for a node
+  const getNodeConnections = (nodeId: string) => {
+    const nodeName = nodes.find(n => n.id === nodeId)?.type;
+    return relationships.filter(r => r.from === nodeName || r.to === nodeName);
+  };
 
   const getNodePosition = (index: number, total: number) => {
     const radius = 200 * zoom;
@@ -139,16 +62,9 @@ export function OntologyVisualization() {
     };
   };
 
-  const getColorForCategory = (category: string) => {
-    const colors: Record<string, string> = {
-      "Core Entities": "#0466C8",
-      "Market Data": "#2563eb",
-      "Competitive Intelligence": "#8B5CF6",
-      "Financial Data": "#059669",
-      "Product Data": "#DC2626",
-      "Customer Data": "#EA580C"
-    };
-    return colors[category] || "#6B7280";
+  const getColorForNode = (index: number) => {
+    const colors = ["#0466C8", "#2563eb", "#8B5CF6", "#059669", "#DC2626"];
+    return colors[index % colors.length];
   };
 
   return (
@@ -157,9 +73,9 @@ export function OntologyVisualization() {
       <div className="border-b border-[#e5e7eb] px-6 py-4 bg-white">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl text-[#1a1a1a]">Data Ontology</h2>
+            <h2 className="text-xl text-[#1a1a1a]">Lululemon Retail Intelligence Ontology</h2>
             <p className="text-sm text-[#9ca3af]">
-              Visual representation of your data lake structure
+              Neurosymbolic knowledge graph structure - {nodes.length} entities, {relationships.length} relationships
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -170,28 +86,18 @@ export function OntologyVisualization() {
           </div>
         </div>
 
-        {/* Search and Filters */}
+        {/* Search */}
         <div className="flex gap-3">
           <div className="flex-1 relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-[#9ca3af]" />
             <input
               type="text"
-              placeholder="Search entities, attributes, relationships..."
+              placeholder="Search entities and relationships..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-3 py-2 text-sm border border-[#e5e7eb] rounded-lg focus:outline-none focus:border-[#0466C8]"
             />
           </div>
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-3 py-2 text-sm border border-[#e5e7eb] rounded-lg focus:outline-none focus:border-[#0466C8]"
-          >
-            <option value="all">All Categories</option>
-            {categories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
         </div>
       </div>
 
@@ -225,32 +131,47 @@ export function OntologyVisualization() {
           <div className="w-full h-full overflow-auto">
             <svg width="800" height="600" className="w-full h-full">
               {/* Connection Lines */}
-              {filteredNodes.map((node, index) => {
-                const pos = getNodePosition(index, filteredNodes.length);
-                return node.connections.map(connId => {
-                  const targetIndex = filteredNodes.findIndex(n => n.id === connId);
-                  if (targetIndex === -1) return null;
-                  const targetPos = getNodePosition(targetIndex, filteredNodes.length);
-                  return (
+              {relationships.map((rel, idx) => {
+                const fromNode = filteredNodes.find(n => n.type === rel.from);
+                const toNode = filteredNodes.find(n => n.type === rel.to);
+                if (!fromNode || !toNode) return null;
+
+                const fromIndex = filteredNodes.indexOf(fromNode);
+                const toIndex = filteredNodes.indexOf(toNode);
+                const fromPos = getNodePosition(fromIndex, filteredNodes.length);
+                const toPos = getNodePosition(toIndex, filteredNodes.length);
+
+                return (
+                  <g key={`rel-${idx}`}>
                     <line
-                      key={`${node.id}-${connId}`}
-                      x1={pos.x}
-                      y1={pos.y}
-                      x2={targetPos.x}
-                      y2={targetPos.y}
+                      x1={fromPos.x}
+                      y1={fromPos.y}
+                      x2={toPos.x}
+                      y2={toPos.y}
                       stroke="#d1d5db"
                       strokeWidth="2"
                       strokeDasharray="5,5"
                     />
-                  );
-                });
+                    {/* Relationship label */}
+                    <text
+                      x={(fromPos.x + toPos.x) / 2}
+                      y={(fromPos.y + toPos.y) / 2}
+                      textAnchor="middle"
+                      className="text-xs fill-[#9ca3af]"
+                      fontSize="10"
+                    >
+                      {rel.relationship}
+                    </text>
+                  </g>
+                );
               })}
 
               {/* Nodes */}
               {filteredNodes.map((node, index) => {
                 const pos = getNodePosition(index, filteredNodes.length);
                 const isSelected = selectedNode === node.id;
-                const color = getColorForCategory(node.category);
+                const color = getColorForNode(index);
+                const connections = getNodeConnections(node.id);
 
                 return (
                   <g
@@ -306,7 +227,7 @@ export function OntologyVisualization() {
                       className="text-xs fill-[#1a1a1a]"
                       fontWeight="600"
                     >
-                      {node.connections.length}
+                      {connections.length}
                     </text>
                   </g>
                 );
@@ -314,19 +235,19 @@ export function OntologyVisualization() {
             </svg>
           </div>
 
-          {/* Legend */}
-          <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-md border border-[#e5e7eb] p-4 max-w-xs">
-            <div className="text-sm font-medium text-[#1a1a1a] mb-3">Categories</div>
-            <div className="grid grid-cols-2 gap-2">
-              {categories.map(category => (
-                <div key={category} className="flex items-center gap-2">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: getColorForCategory(category) }}
-                  />
-                  <span className="text-xs text-[#666666]">{category}</span>
-                </div>
-              ))}
+          {/* Info Box */}
+          <div className="absolute bottom-4 left-4 bg-white rounded-lg shadow-md border border-[#e5e7eb] p-4 max-w-sm">
+            <div className="text-sm font-medium text-[#1a1a1a] mb-2">Growth Protocol Ontology</div>
+            <p className="text-xs text-[#666666] mb-3">
+              This knowledge graph represents the complete data structure for Lululemon's retail intelligence system.
+            </p>
+            <div className="flex items-center gap-4 text-xs text-[#666666]">
+              <div>
+                <span className="font-medium text-[#0466C8]">{nodes.length}</span> Entities
+              </div>
+              <div>
+                <span className="font-medium text-[#0466C8]">{relationships.length}</span> Relationships
+              </div>
             </div>
           </div>
         </div>
@@ -338,14 +259,14 @@ export function OntologyVisualization() {
               <div className="flex items-start gap-3 mb-4">
                 <div
                   className="w-12 h-12 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: getColorForCategory(selectedNodeData.category) }}
+                  style={{ backgroundColor: getColorForNode(nodes.indexOf(selectedNodeData)) }}
                 >
                   <Database className="w-6 h-6 text-white" />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-lg text-[#1a1a1a] mb-1">{selectedNodeData.name}</h3>
                   <span className="text-xs text-[#666666] bg-[#f8f9fa] px-2 py-1 rounded">
-                    {selectedNodeData.category}
+                    Entity
                   </span>
                 </div>
               </div>
@@ -354,20 +275,20 @@ export function OntologyVisualization() {
                 {selectedNodeData.description}
               </p>
 
-              {/* Fields */}
-              {selectedNodeData.fields && (
+              {/* Attributes */}
+              {selectedNodeData.attributes && selectedNodeData.attributes.length > 0 && (
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-3">
                     <Table className="w-4 h-4 text-[#666666]" />
-                    <h4 className="text-sm text-[#1a1a1a]">Fields</h4>
+                    <h4 className="text-sm text-[#1a1a1a]">Attributes</h4>
                   </div>
                   <div className="space-y-2">
-                    {selectedNodeData.fields.map(field => (
+                    {selectedNodeData.attributes.map(attr => (
                       <div
-                        key={field}
+                        key={attr}
                         className="px-3 py-2 bg-[#f8f9fa] rounded text-xs text-[#333333] font-mono"
                       >
-                        {field}
+                        {attr}
                       </div>
                     ))}
                   </div>
@@ -379,27 +300,34 @@ export function OntologyVisualization() {
                 <div className="flex items-center gap-2 mb-3">
                   <Link2 className="w-4 h-4 text-[#666666]" />
                   <h4 className="text-sm text-[#1a1a1a]">
-                    Relationships ({selectedNodeData.connections.length})
+                    Relationships ({getNodeConnections(selectedNodeData.id).length})
                   </h4>
                 </div>
                 <div className="space-y-2">
-                  {selectedNodeData.connections.map(connId => {
-                    const connNode = ontologyData.find(n => n.id === connId);
-                    if (!connNode) return null;
+                  {getNodeConnections(selectedNodeData.id).map((rel, idx) => {
+                    const isFrom = rel.from === selectedNodeData.type;
+                    const targetType = isFrom ? rel.to : rel.from;
+                    const targetNode = nodes.find(n => n.type === targetType);
+                    if (!targetNode) return null;
+
                     return (
                       <button
-                        key={connId}
-                        onClick={() => setSelectedNode(connId)}
-                        className="w-full flex items-center justify-between px-3 py-2 bg-[#f8f9fa] hover:bg-[#e5e7eb] rounded text-xs transition-colors"
+                        key={idx}
+                        onClick={() => setSelectedNode(targetNode.id)}
+                        className="w-full px-3 py-2 bg-[#f8f9fa] hover:bg-[#e5e7eb] rounded text-left transition-colors"
                       >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-medium text-[#0466C8]">{rel.relationship}</span>
+                          <ChevronRight className="w-3 h-3 text-[#999999]" />
+                        </div>
                         <div className="flex items-center gap-2">
                           <div
                             className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: getColorForCategory(connNode.category) }}
+                            style={{ backgroundColor: getColorForNode(nodes.indexOf(targetNode)) }}
                           />
-                          <span className="text-[#333333]">{connNode.name}</span>
+                          <span className="text-xs text-[#333333]">{targetType}</span>
                         </div>
-                        <ChevronRight className="w-3 h-3 text-[#999999]" />
+                        <p className="text-xs text-[#999999] mt-1">{rel.description}</p>
                       </button>
                     );
                   })}
@@ -409,8 +337,11 @@ export function OntologyVisualization() {
           ) : (
             <div className="p-6 text-center">
               <Database className="w-12 h-12 text-[#e5e7eb] mx-auto mb-3" />
-              <p className="text-sm text-[#999999]">
-                Select a node to view details
+              <p className="text-sm text-[#999999] mb-1">
+                Select an entity to view details
+              </p>
+              <p className="text-xs text-[#cccccc]">
+                Click on any node in the graph
               </p>
             </div>
           )}
