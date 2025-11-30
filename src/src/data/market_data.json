@@ -1,0 +1,270 @@
+{
+  "market_trends": {
+    "Q2_2026_emerging_trends": [
+      {
+        "trend_name": "Sustainable Performance Fabrics",
+        "category": "Athletic Wear",
+        "growth_rate": "+45%",
+        "alignment_with_bestsellers": "High - aligns with Align Pant and Wunder Train success",
+        "priority": "High",
+        "consumer_demand": "Very Strong",
+        "notes": "Eco-conscious consumers seeking sustainable options without performance compromise"
+      },
+      {
+        "trend_name": "Hybrid Lounge-to-Street Wear",
+        "category": "Loungewear/Casual",
+        "growth_rate": "+52%",
+        "alignment_with_bestsellers": "Very High - directly aligns with Scuba Hoodie momentum",
+        "priority": "Critical",
+        "consumer_demand": "Extremely Strong",
+        "notes": "Post-pandemic lifestyle shift continues; consumers want versatile pieces"
+      },
+      {
+        "trend_name": "High-Performance Running Gear",
+        "category": "Running",
+        "growth_rate": "+38%",
+        "alignment_with_bestsellers": "High - aligns with Fast and Free, Base Pace performance",
+        "priority": "High",
+        "consumer_demand": "Strong",
+        "notes": "Marathon and outdoor running surge driving premium gear demand"
+      },
+      {
+        "trend_name": "Minimalist Accessories",
+        "category": "Accessories",
+        "growth_rate": "+61%",
+        "alignment_with_bestsellers": "Very High - Everywhere Belt Bag leading this category",
+        "priority": "Critical",
+        "consumer_demand": "Extremely Strong",
+        "notes": "Functional, compact designs with crossbody versatility"
+      },
+      {
+        "trend_name": "Technical Outerwear",
+        "category": "Jackets/Outerwear",
+        "growth_rate": "+29%",
+        "alignment_with_bestsellers": "Medium-High - Define Jacket shows appetite for premium outerwear",
+        "priority": "Medium",
+        "consumer_demand": "Strong",
+        "notes": "Weather-adaptive, packable designs gaining traction"
+      },
+      {
+        "trend_name": "Men's Athleisure Expansion",
+        "category": "Men's Wear",
+        "growth_rate": "+33%",
+        "alignment_with_bestsellers": "Medium - ABC Jogger indicates growing men's market",
+        "priority": "Medium-High",
+        "consumer_demand": "Growing",
+        "notes": "Male consumers increasingly adopting athleisure for work-from-home"
+      }
+    ],
+    "color_trends_spring_2026": {
+      "women_activewear": [
+        {
+          "color_family": "Soft Pastels",
+          "specific_colors": ["Lavender Haze", "Peach Cream", "Mint Whisper", "Blush Pink"],
+          "trend_strength": "Very Strong",
+          "match_with_lululemon_q2_palette": "Partial - we have Pink Mist but missing key pastels",
+          "recommendation": "Add 2-3 pastel options to align with market"
+        },
+        {
+          "color_family": "Earth Tones",
+          "specific_colors": ["Terracotta", "Sage Green", "Clay Brown", "Desert Sand"],
+          "trend_strength": "Strong",
+          "match_with_lululemon_q2_palette": "Good - Dark Olive and Desert Teal align",
+          "recommendation": "On track, consider expanding earth tone range"
+        },
+        {
+          "color_family": "Bold Brights",
+          "specific_colors": ["Electric Blue", "Coral Sunset", "Sunny Yellow", "Fuchsia"],
+          "trend_strength": "Medium",
+          "match_with_lululemon_q2_palette": "Weak - Sonic Pink is only bright option",
+          "recommendation": "Low priority, maintain current bright accent strategy"
+        },
+        {
+          "color_family": "Neutrals with Texture",
+          "specific_colors": ["Heathered Grey", "Oatmeal", "Charcoal", "Warm Taupe"],
+          "trend_strength": "Consistent",
+          "match_with_lululemon_q2_palette": "Excellent - strong neutral base maintained",
+          "recommendation": "Continue current approach"
+        }
+      ],
+      "pattern_trends": [
+        {
+          "pattern": "Subtle Textures",
+          "description": "Micro-patterns, mesh details, tonal stripes",
+          "trend_strength": "Very Strong",
+          "lululemon_alignment": "Medium - opportunity to expand"
+        },
+        {
+          "pattern": "Color Blocking",
+          "description": "Two-tone designs with contrasting panels",
+          "trend_strength": "Strong",
+          "lululemon_alignment": "Low - gap in current offerings"
+        },
+        {
+          "pattern": "Minimal Prints",
+          "description": "Small-scale geometric or abstract prints",
+          "trend_strength": "Medium",
+          "lululemon_alignment": "Low - mostly solid colors currently"
+        }
+      ]
+    },
+    "adjacent_categories_opportunity": [
+      {
+        "category": "Performance Socks",
+        "consumer_demand": "Very High",
+        "connection_to_bestsellers": "Complements running tights and training wear",
+        "estimated_market_size": "$280M annually",
+        "cannibalization_risk": "None",
+        "recommendation": "Strong opportunity - natural extension"
+      },
+      {
+        "category": "Yoga Props & Accessories",
+        "consumer_demand": "High",
+        "connection_to_bestsellers": "Direct tie to Align Pant yoga segment",
+        "estimated_market_size": "$190M annually",
+        "cannibalization_risk": "Low",
+        "recommendation": "Good opportunity - brand alignment strong"
+      },
+      {
+        "category": "Technical Underwear",
+        "consumer_demand": "Very High",
+        "connection_to_bestsellers": "Supports all athletic categories",
+        "estimated_market_size": "$420M annually",
+        "cannibalization_risk": "None",
+        "recommendation": "Excellent opportunity - high margins, strong demand"
+      },
+      {
+        "category": "Lightweight Backpacks",
+        "consumer_demand": "High",
+        "connection_to_bestsellers": "Extends Everywhere Belt Bag success",
+        "estimated_market_size": "$340M annually",
+        "cannibalization_risk": "Low - different use cases",
+        "recommendation": "Strong opportunity - proven accessory demand"
+      },
+      {
+        "category": "Recovery & Wellness Tools",
+        "consumer_demand": "Medium-High",
+        "connection_to_bestsellers": "Post-workout complement to training wear",
+        "estimated_market_size": "$210M annually",
+        "cannibalization_risk": "None",
+        "recommendation": "Moderate opportunity - requires education"
+      }
+    ]
+  },
+  "competitor_analysis": {
+    "fabric_innovations": [
+      {
+        "competitor": "Nike",
+        "innovation": "Nike Dri-FIT ADV Technology",
+        "description": "Advanced moisture-wicking with body-mapped ventilation",
+        "performance_q4_2025": "Strong - featured in top 5 products",
+        "lululemon_equivalent": "Everlux (similar but less body-mapping)",
+        "recommendation": "Consider accelerating body-mapped ventilation R&D",
+        "development_timeline": "6-8 months",
+        "investment_required": "Medium"
+      },
+      {
+        "competitor": "Athleta",
+        "innovation": "Responsible Nylon (100% recycled)",
+        "description": "Fully recycled nylon with equivalent performance to virgin fabric",
+        "performance_q4_2025": "Very Strong - sustainability resonating with consumers",
+        "lululemon_equivalent": "Partial recycled content in some items",
+        "recommendation": "Accelerate development - high priority for brand values",
+        "development_timeline": "4-6 months",
+        "investment_required": "Medium-High"
+      },
+      {
+        "competitor": "Alo Yoga",
+        "innovation": "Airlift Fabric",
+        "description": "Cloud-like soft with high compression and smoothing",
+        "performance_q4_2025": "Extremely Strong - viral social media presence",
+        "lululemon_equivalent": "Nulu (different properties - less compression)",
+        "recommendation": "Consider soft-compression hybrid development",
+        "development_timeline": "8-10 months",
+        "investment_required": "High"
+      },
+      {
+        "competitor": "Outdoor Voices",
+        "innovation": "RecTrek Fabric",
+        "description": "Versatile fabric for both outdoor and studio activities",
+        "performance_q4_2025": "Medium - niche appeal but growing",
+        "lululemon_equivalent": "None directly comparable",
+        "recommendation": "Low priority - doesn't align with current product mix",
+        "development_timeline": "N/A",
+        "investment_required": "N/A"
+      },
+      {
+        "competitor": "Vuori",
+        "innovation": "DreamKnit Fabric",
+        "description": "Ultra-soft with four-way stretch for lounge-to-activity transition",
+        "performance_q4_2025": "Very Strong - men's market particularly responsive",
+        "lululemon_equivalent": "Cotton-blend fleece (less technical)",
+        "recommendation": "High priority for men's category expansion",
+        "development_timeline": "5-7 months",
+        "investment_required": "Medium"
+      }
+    ]
+  },
+  "q2_launch_analysis": {
+    "planned_launches": [
+      {
+        "product": "SoftStream Yoga Pant",
+        "category": "Yoga Pants",
+        "target_demographic": "Women 25-45",
+        "price_point": "$98",
+        "key_features": "Buttery-soft, high-rise, 7/8 length"
+      },
+      {
+        "product": "Align Ultra-High Rise 28\"",
+        "category": "Yoga Pants",
+        "target_demographic": "Women 25-45",
+        "price_point": "$108",
+        "key_features": "Extended rise, Nulu fabric, full length"
+      },
+      {
+        "product": "FlowState Lounge Set",
+        "category": "Loungewear",
+        "target_demographic": "Women 20-40",
+        "price_point": "$168 (set)",
+        "key_features": "Matching hoodie and jogger, ribbed texture"
+      },
+      {
+        "product": "Scuba Cropped Hoodie",
+        "category": "Loungewear",
+        "target_demographic": "Women 18-35",
+        "price_point": "$108",
+        "key_features": "Cropped length, oversized fit, cotton-blend"
+      }
+    ],
+    "cannibalization_assessment": [
+      {
+        "potential_conflict": "SoftStream Yoga Pant vs. Align High-Rise Pant",
+        "risk_level": "HIGH",
+        "analysis": "Both target same demographic, similar price, yoga category. SoftStream may cannibalize Align sales.",
+        "market_preference_data": "Current consumers show 73% preference for Nulu fabric over new soft fabrics",
+        "recommendation": "PAUSE SoftStream launch. Align is proven bestseller; new entry risks splitting loyal customer base without clear differentiation."
+      },
+      {
+        "potential_conflict": "Align Ultra-High Rise vs. Standard Align",
+        "risk_level": "MEDIUM",
+        "analysis": "Line extension of bestseller, slight cannibalization expected but acceptable",
+        "market_preference_data": "38% of customers request higher rise option",
+        "recommendation": "PROCEED. Minimal cannibalization, addresses customer feedback, expands Align franchise."
+      },
+      {
+        "potential_conflict": "FlowState Lounge Set vs. Scuba Cropped Hoodie",
+        "risk_level": "MEDIUM-HIGH",
+        "analysis": "Both loungewear, overlapping demographics, similar price points when compared per-piece",
+        "market_preference_data": "Set buyers vs. separates buyers show 62% overlap",
+        "recommendation": "LAUNCH SEQUENTIALLY. Space launches by 4-6 weeks to assess independent demand before potential overlap."
+      },
+      {
+        "potential_conflict": "Scuba Cropped vs. Scuba Oversized Half-Zip",
+        "risk_level": "LOW-MEDIUM",
+        "analysis": "Same Scuba family, but different silhouettes appeal to different occasions",
+        "market_preference_data": "Cropped style requests up 41% in customer feedback",
+        "recommendation": "PROCEED. Product differentiation sufficient; extends successful Scuba line."
+      }
+    ]
+  }
+}
