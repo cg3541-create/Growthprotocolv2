@@ -1,0 +1,108 @@
+{
+  "ontology": {
+    "name": "Lululemon Retail Intelligence Ontology",
+    "version": "1.0",
+    "entities": [
+      {
+        "id": "E1",
+        "type": "Products",
+        "description": "Product catalog including SKUs, categories, and performance data",
+        "attributes": ["name", "category", "material", "price", "colors", "sales_metrics"]
+      },
+      {
+        "id": "E2",
+        "type": "Materials",
+        "description": "Fabric technologies and material innovations",
+        "attributes": ["fabric_name", "properties", "sustainability_rating", "performance_metrics"]
+      },
+      {
+        "id": "E3",
+        "type": "Markets",
+        "description": "Geographic markets, consumer segments, and market trends",
+        "attributes": ["region", "demographics", "trends", "growth_rate", "preferences"]
+      },
+      {
+        "id": "E4",
+        "type": "Competitors",
+        "description": "Competitive brands and their product innovations",
+        "attributes": ["brand_name", "innovations", "market_position", "pricing_strategy"]
+      },
+      {
+        "id": "E5",
+        "type": "Customers",
+        "description": "Target demographics and customer preferences",
+        "attributes": ["age_range", "gender", "lifestyle", "purchase_behavior", "preferences"]
+      }
+    ],
+    "relationships": [
+      {
+        "from": "Products",
+        "to": "Materials",
+        "relationship": "made_of",
+        "description": "Products are manufactured using specific materials and fabrics"
+      },
+      {
+        "from": "Products",
+        "to": "Markets",
+        "relationship": "sold_in",
+        "description": "Products are distributed and sold in specific geographic markets"
+      },
+      {
+        "from": "Products",
+        "to": "Customers",
+        "relationship": "targets",
+        "description": "Products are designed for specific customer demographics"
+      },
+      {
+        "from": "Competitors",
+        "to": "Products",
+        "relationship": "competes_with",
+        "description": "Competitor products compete with our product lines"
+      },
+      {
+        "from": "Markets",
+        "to": "Customers",
+        "relationship": "contains",
+        "description": "Markets consist of customer segments with specific characteristics"
+      },
+      {
+        "from": "Competitors",
+        "to": "Materials",
+        "relationship": "innovates_with",
+        "description": "Competitors develop and use innovative materials"
+      },
+      {
+        "from": "Materials",
+        "to": "Markets",
+        "relationship": "preferred_in",
+        "description": "Certain materials show preference trends in specific markets"
+      },
+      {
+        "from": "Customers",
+        "to": "Products",
+        "relationship": "purchases",
+        "description": "Customer segments purchase specific product categories"
+      }
+    ],
+    "sample_queries": [
+      {
+        "query": "Show me emerging trends in athletic wear for Q2 2026",
+        "entities_involved": ["Markets", "Products"],
+        "relationships_used": ["sold_in", "contains"],
+        "data_sources": ["market_data.json"]
+      },
+      {
+        "query": "Which fabric innovations are gaining traction in competitor products?",
+        "entities_involved": ["Competitors", "Materials", "Products"],
+        "relationships_used": ["innovates_with", "competes_with"],
+        "data_sources": ["market_data.json"]
+      },
+      {
+        "query": "What adjacent product categories show strong consumer demand?",
+        "entities_involved": ["Products", "Customers", "Markets"],
+        "relationships_used": ["targets", "purchases"],
+        "data_sources": ["products.json", "market_data.json"]
+      }
+    ]
+  }
+}

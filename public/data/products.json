@@ -1,0 +1,154 @@
+{
+  "products": [
+    {
+      "id": "P001",
+      "name": "Align High-Rise Pant 25\"",
+      "category": "Yoga Pants",
+      "material": "Nulu fabric",
+      "price": 98,
+      "colors": ["Black", "Navy", "Dark Olive", "Lunar Rock"],
+      "quarter_sales": "Q4 2025",
+      "status": "Bestseller",
+      "target_demographic": "Women 25-40",
+      "performance_metrics": {
+        "sales_growth": "+23%",
+        "customer_rating": 4.8
+      }
+    },
+    {
+      "id": "P002",
+      "name": "Wunder Train High-Rise Tight 25\"",
+      "category": "Training Tights",
+      "material": "Everlux fabric",
+      "price": 98,
+      "colors": ["Black", "Chambray", "Sonic Pink", "True Navy"],
+      "quarter_sales": "Q4 2025",
+      "status": "Bestseller",
+      "target_demographic": "Women 20-35",
+      "performance_metrics": {
+        "sales_growth": "+31%",
+        "customer_rating": 4.7
+      }
+    },
+    {
+      "id": "P003",
+      "name": "Define Jacket",
+      "category": "Outerwear",
+      "material": "Luon fabric with Lycra",
+      "price": 118,
+      "colors": ["Black", "Navy", "Heathered Grey", "Dark Red"],
+      "quarter_sales": "Q4 2025",
+      "status": "Bestseller",
+      "target_demographic": "Women 30-50",
+      "performance_metrics": {
+        "sales_growth": "+18%",
+        "customer_rating": 4.9
+      }
+    },
+    {
+      "id": "P004",
+      "name": "Fast and Free High-Rise Tight 25\"",
+      "category": "Running Tights",
+      "material": "Nulux fabric",
+      "price": 128,
+      "colors": ["Black", "Navy", "Desert Teal", "Violet Verbena"],
+      "quarter_sales": "Q4 2025",
+      "status": "Top 10",
+      "target_demographic": "Women 25-40",
+      "performance_metrics": {
+        "sales_growth": "+27%",
+        "customer_rating": 4.6
+      }
+    },
+    {
+      "id": "P005",
+      "name": "Scuba Oversized Half-Zip Hoodie",
+      "category": "Loungewear",
+      "material": "Cotton-blend fleece",
+      "price": 118,
+      "colors": ["Heathered Grey", "Black", "Pink Mist", "Lavender Dew"],
+      "quarter_sales": "Q4 2025",
+      "status": "Bestseller",
+      "target_demographic": "Women 18-35",
+      "performance_metrics": {
+        "sales_growth": "+42%",
+        "customer_rating": 4.8
+      }
+    },
+    {
+      "id": "P006",
+      "name": "Energy Bra High Neck",
+      "category": "Sports Bras",
+      "material": "Luxtreme fabric",
+      "price": 52,
+      "colors": ["Black", "White", "Sonic Pink", "Navy"],
+      "quarter_sales": "Q4 2025",
+      "status": "Top 10",
+      "target_demographic": "Women 20-40",
+      "performance_metrics": {
+        "sales_growth": "+19%",
+        "customer_rating": 4.5
+      }
+    },
+    {
+      "id": "P007",
+      "name": "ABC Jogger",
+      "category": "Men's Pants",
+      "material": "Warpstreme fabric",
+      "price": 128,
+      "colors": ["Black", "Navy", "Dark Olive", "Obsidian"],
+      "quarter_sales": "Q4 2025",
+      "status": "Top 10",
+      "target_demographic": "Men 25-45",
+      "performance_metrics": {
+        "sales_growth": "+25%",
+        "customer_rating": 4.7
+      }
+    },
+    {
+      "id": "P008",
+      "name": "Swiftly Tech Long Sleeve 2.0",
+      "category": "Training Tops",
+      "material": "Seamless construction with X-STATIC fiber",
+      "price": 78,
+      "colors": ["White", "Black", "Dusty Rose", "True Navy"],
+      "quarter_sales": "Q4 2025",
+      "status": "Top 10",
+      "target_demographic": "Women 25-45",
+      "performance_metrics": {
+        "sales_growth": "+16%",
+        "customer_rating": 4.6
+      }
+    },
+    {
+      "id": "P009",
+      "name": "Everywhere Belt Bag",
+      "category": "Accessories",
+      "material": "Water-repellent fabric",
+      "price": 38,
+      "colors": ["Black", "Navy", "Pink Pastel", "White Opal"],
+      "quarter_sales": "Q4 2025",
+      "status": "Bestseller",
+      "target_demographic": "Women 18-50",
+      "performance_metrics": {
+        "sales_growth": "+67%",
+        "customer_rating": 4.9
+      }
+    },
+    {
+      "id": "P010",
+      "name": "Base Pace High-Rise Running Tight 25\"",
+      "category": "Running Tights",
+      "material": "Nulux fabric",
+      "price": 118,
+      "colors": ["Black", "True Navy", "Graphite Grey", "Dark Red"],
+      "quarter_sales": "Q4 2025",
+      "status": "Top 10",
+      "target_demographic": "Women 25-40",
+      "performance_metrics": {
+        "sales_growth": "+21%",
+        "customer_rating": 4.7
+      }
+    }
+  ]
+}
