@@ -7,10 +7,13 @@ import { WorkflowDemo } from "./WorkflowDemo";
 import { FeatureHighlight } from "./FeatureHighlight";
 import { ReasoningDisplay } from "./ReasoningDisplay";
 import { AIResponse } from "./AIResponse";
-import { useState } from "react";
+import { ActionPlan } from "./ActionPlan";
+import { AgentDeployment } from "./AgentDeployment";
+import React, { useState } from "react";
 import { Play, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "./ui/button";
-import { sendMessageToClaude } from "../services/claudeApi";
+import { sendMessageToClaude, sendMessageWithContextEngineering, SearchResponse } from "../services/claudeApi";
+import { ActionPlan as ActionPlanType } from "./ActionPlan";
 
 interface ChatAreaProps {
   onPromptSubmit?: (prompt: string) => void;
@@ -27,8 +30,16 @@ export function ChatArea({ onPromptSubmit, onActiveSourcesChange, isDataLoaded }
   const [showResponse, setShowResponse] = useState(false);
   const [userQuery, setUserQuery] = useState("");
   const [aiResponse, setAiResponse] = useState("");
+  const [searchResponse, setSearchResponse] = useState<SearchResponse | null>(null);
+  const [actionPlan, setActionPlan] = useState<ActionPlanType | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [userPlan] = useState<'basic' | 'premium'>('basic'); // TODO: Get from user context
   const [autonomyLevel, setAutonomyLevel] = useState<"search" | "research" | "deep research">("research");
+  const [mockSources] = useState<Array<{ name: string; type: string }>>([
+    { name: "products.json", type: "Product Data" },
+    { name: "market_data.json", type: "Market Trends" },
+    { name: "ontology.json", type: "Knowledge Graph" }
+  ]);
 
   const handlePromptClick = async (promptText: string) => {
     if (!isDataLoaded) {
@@ -47,25 +58,60 @@ export function ChatArea({ onPromptSubmit, onActiveSourcesChange, isDataLoaded }
       onPromptSubmit(promptText);
     }
 
-    // Activate data sources
-    if (onActiveSourcesChange) {
-      onActiveSourcesChange(["Research Papers", "Ontoloop Data"]);
-    }
-
     try {
-      // Call Claude API
-      const response = await sendMessageToClaude(promptText);
-      setAiResponse(response);
+      // Call new context engineering API
+      const response = await sendMessageWithContextEngineering(promptText);
+      setSearchResponse(response);
+      setAiResponse(response.answer);
+      
+      // Extract database source names from the response
+      const databaseSourceNames = response.sources?.database?.map(src => src.name) || [];
+      
+      console.log('📂 Extracted database sources:', databaseSourceNames);
+      console.log('📂 Full response sources:', response.sources);
+      console.log('📂 Response structure:', JSON.stringify(response, null, 2));
+      
+      // Update active sources with actual database files used
+      // Set sources immediately so they're available when response is shown
+      if (onActiveSourcesChange) {
+        if (databaseSourceNames.length > 0) {
+          console.log('✅ Setting active sources:', databaseSourceNames);
+          onActiveSourcesChange(databaseSourceNames);
+        } else {
+          console.log('⚠️ No database sources found in response');
+          onActiveSourcesChange([]);
+        }
+      }
       
       // Show response after reasoning animation
       setTimeout(() => {
         setShowReasoning(false);
         setShowResponse(true);
         setIsLoading(false);
+        // Ensure sources are set again after response is shown (in case timing issue)
+        if (onActiveSourcesChange && databaseSourceNames.length > 0) {
+          console.log('🔄 Re-setting active sources after response shown:', databaseSourceNames);
+          onActiveSourcesChange(databaseSourceNames);
+        }
       }, 3000);
     } catch (error) {
       console.error("Error getting AI response:", error);
-      setAiResponse("Sorry, I encountered an error processing your request. Please check your API key configuration.");
+      // Fallback to old method
+      try {
+        const fallbackResponse = await sendMessageToClaude(promptText);
+        setAiResponse(fallbackResponse);
+        setSearchResponse(null);
+        // Clear active sources on error
+        if (onActiveSourcesChange) {
+          onActiveSourcesChange([]);
+        }
+      } catch (fallbackError) {
+        setAiResponse("Sorry, I encountered an error processing your request. Please check your API key configuration.");
+        setSearchResponse(null);
+        if (onActiveSourcesChange) {
+          onActiveSourcesChange([]);
+        }
+      }
       setTimeout(() => {
         setShowReasoning(false);
         setShowResponse(true);
@@ -93,25 +139,60 @@ export function ChatArea({ onPromptSubmit, onActiveSourcesChange, isDataLoaded }
       onPromptSubmit(promptText);
     }
 
-    // Activate data sources
-    if (onActiveSourcesChange) {
-      onActiveSourcesChange(["Research Papers", "Ontoloop Data"]);
-    }
-
     try {
-      // Call Claude API
-      const response = await sendMessageToClaude(promptText);
-      setAiResponse(response);
+      // Call new context engineering API
+      const response = await sendMessageWithContextEngineering(promptText);
+      setSearchResponse(response);
+      setAiResponse(response.answer);
+      
+      // Extract database source names from the response
+      const databaseSourceNames = response.sources?.database?.map(src => src.name) || [];
+      
+      console.log('📂 Extracted database sources:', databaseSourceNames);
+      console.log('📂 Full response sources:', response.sources);
+      console.log('📂 Response structure:', JSON.stringify(response, null, 2));
+      
+      // Update active sources with actual database files used
+      // Set sources immediately so they're available when response is shown
+      if (onActiveSourcesChange) {
+        if (databaseSourceNames.length > 0) {
+          console.log('✅ Setting active sources:', databaseSourceNames);
+          onActiveSourcesChange(databaseSourceNames);
+        } else {
+          console.log('⚠️ No database sources found in response');
+          onActiveSourcesChange([]);
+        }
+      }
       
       // Show response after reasoning animation
       setTimeout(() => {
         setShowReasoning(false);
         setShowResponse(true);
         setIsLoading(false);
+        // Ensure sources are set again after response is shown (in case timing issue)
+        if (onActiveSourcesChange && databaseSourceNames.length > 0) {
+          console.log('🔄 Re-setting active sources after response shown:', databaseSourceNames);
+          onActiveSourcesChange(databaseSourceNames);
+        }
       }, 3000);
     } catch (error) {
       console.error("Error getting AI response:", error);
-      setAiResponse("Sorry, I encountered an error processing your request. Please check your API key configuration.");
+      // Fallback to old method
+      try {
+        const fallbackResponse = await sendMessageToClaude(promptText);
+        setAiResponse(fallbackResponse);
+        setSearchResponse(null);
+        // Clear active sources on error
+        if (onActiveSourcesChange) {
+          onActiveSourcesChange([]);
+        }
+      } catch (fallbackError) {
+        setAiResponse("Sorry, I encountered an error processing your request. Please check your API key configuration.");
+        setSearchResponse(null);
+        if (onActiveSourcesChange) {
+          onActiveSourcesChange([]);
+        }
+      }
       setTimeout(() => {
         setShowReasoning(false);
         setShowResponse(true);
@@ -143,9 +224,7 @@ export function ChatArea({ onPromptSubmit, onActiveSourcesChange, isDataLoaded }
               </div>
 
               {/* Suggested Prompts */}
-              <div onClick={() => handlePromptClick("Show me emerging trends in athletic wear for Q2 2026, prioritizing categories where our Q4 2025 bestsellers align with market momentum")}>
-                <SuggestedPrompts />
-              </div>
+              <SuggestedPrompts onSelect={handlePromptClick} />
             </>
           ) : showDemo ? (
             <>
@@ -203,12 +282,27 @@ export function ChatArea({ onPromptSubmit, onActiveSourcesChange, isDataLoaded }
                     />
                     
                     {/* AI Response */}
-                    {showResponse && (
-                      <div className="prose max-w-none">
-                        <div className="whitespace-pre-wrap text-[#374151] leading-relaxed">
-                          {aiResponse}
-                        </div>
-                      </div>
+                    <AIResponse 
+                      showResponse={showResponse} 
+                      content={aiResponse} 
+                      sources={mockSources} // Always pass sources as fallback
+                      searchResponse={searchResponse || undefined}
+                    />
+                    
+                    {/* Action Plan */}
+                    {showResponse && aiResponse && (
+                      <ActionPlan 
+                        answer={aiResponse}
+                        onPlanGenerated={(plan) => setActionPlan(plan)}
+                      />
+                    )}
+                    
+                    {/* Agent Deployment */}
+                    {actionPlan && (
+                      <AgentDeployment 
+                        plan={actionPlan}
+                        userPlan={userPlan}
+                      />
                     )}
                   </div>
                 </div>
@@ -225,7 +319,6 @@ export function ChatArea({ onPromptSubmit, onActiveSourcesChange, isDataLoaded }
             onSubmit={handlePromptSubmit} 
             showAutonomySlider={!chatStarted}
             onAutonomyChange={setAutonomyLevel}
-            disabled={isLoading}
           />
         </div>
       </div>

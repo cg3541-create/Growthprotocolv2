@@ -1,6 +1,6 @@
 import { WorkflowAction } from "./WorkflowBuilder";
 import { X, Upload, CheckCircle } from "lucide-react";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Checkbox } from "./ui/checkbox";
 import { Label } from "./ui/label";
 
@@ -14,16 +14,38 @@ export function RightSidebar({ workflowActions = [], activeDataSources = [] }: R
   const [isOpen, setIsOpen] = useState(true);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
   const [activeFilters, setActiveFilters] = useState<string[]>(["Research Papers-0"]);
+  
+  // Debug logging
+  useEffect(() => {
+    console.log('📋 RightSidebar received activeDataSources:', activeDataSources);
+    console.log('📋 Available sources in sidebar:', sourcesRef.current);
+    // Log which sources should be active
+    sourcesRef.current.forEach((source, index) => {
+      const isActive = activeDataSources.some(active => {
+        const activeLower = active.toLowerCase().trim();
+        const sourceLower = source.toLowerCase().trim();
+        return activeLower === sourceLower || 
+               activeLower.replace(/\.json$/, '') === sourceLower.replace(/\.json$/, '');
+      });
+      if (isActive) {
+        console.log(`✅ Source "${source}" should be checked`);
+      } else if (activeDataSources.length > 0) {
+        console.log(`❌ Source "${source}" not matched. Active sources:`, activeDataSources);
+      }
+    });
+  }, [activeDataSources]);
 
   const filters = ["Research Papers", "Ontoloop Data", "Web Scraping"];
+  // Actual database files from the ontology/data
   const sources = [
-    "AI Patents Database.pdf",
-    "Academic Journals Collection.pdf",
-    "Snowflake Data Lake",
-    "Databricks Analytics",
-    "ChatGPT API Responses",
-    "Claude Analysis Results",
+    "products.json",
+    "market_data.json",
+    "ontology.json",
   ];
+  
+  // Memoize sources to avoid dependency issues
+  const sourcesRef = React.useRef(sources);
+  sourcesRef.current = sources;
 
   const toggleFilter = (filter: string, index: number) => {
     const key = `${filter}-${index}`;
@@ -34,10 +56,51 @@ export function RightSidebar({ workflowActions = [], activeDataSources = [] }: R
 
   const toggleSource = (source: string, index: number) => {
     const key = `${source}-${index}`;
+    // Don't allow unchecking if it's actively being used
+    const isActive = activeDataSources.some(active => {
+      const activeLower = active.toLowerCase();
+      const sourceLower = source.toLowerCase();
+      return activeLower === sourceLower || 
+             activeLower.includes(sourceLower) || 
+             sourceLower.includes(activeLower.replace('.json', ''));
+    });
+    
+    if (isActive) {
+      // Can't uncheck active sources
+      return;
+    }
+    
     setSelectedSources((prev) =>
       prev.includes(key) ? prev.filter((s) => s !== key) : [...prev, key]
     );
   };
+  
+  // Clear manual selections when active sources change (new query)
+  useEffect(() => {
+    if (activeDataSources.length > 0) {
+      // Keep only manually selected sources that aren't in activeDataSources
+      setSelectedSources(prev => prev.filter(key => {
+        // Extract source name from key (format: "sourceName-index")
+        const parts = key.split('-');
+        const sourceIndex = parseInt(parts[parts.length - 1] || '0');
+        const source = sources[sourceIndex];
+        if (!source) return false;
+        
+        const isActive = activeDataSources.some(active => {
+          const activeLower = active.toLowerCase();
+          const sourceLower = source.toLowerCase();
+          return activeLower === sourceLower || 
+                 activeLower.includes(sourceLower) || 
+                 sourceLower.includes(activeLower.replace('.json', ''));
+        });
+        return !isActive; // Keep if not active
+      }));
+    } else {
+      // If no active sources, clear all manual selections
+      setSelectedSources([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeDataSources]);
 
   if (!isOpen) {
     return (
@@ -126,20 +189,55 @@ export function RightSidebar({ workflowActions = [], activeDataSources = [] }: R
               <div className="text-xs text-[#9ca3af]">Available Sources</div>
               {sources.map((source, index) => {
                 const key = `${source}-${index}`;
-                const isChecked = selectedSources.includes(key);
+                // Check if this source is in activeDataSources (used in current query)
+                // Match by exact name (case-insensitive)
+                const isActive = activeDataSources.some(active => {
+                  const activeLower = active.toLowerCase().trim();
+                  const sourceLower = source.toLowerCase().trim();
+                  // Exact match (most common case)
+                  if (activeLower === sourceLower) {
+                    return true;
+                  }
+                  // Also check if they match without file extension
+                  const activeBase = activeLower.replace(/\.json$/, '');
+                  const sourceBase = sourceLower.replace(/\.json$/, '');
+                  if (activeBase === sourceBase && activeBase.length > 0) {
+                    return true;
+                  }
+                  return false;
+                });
+                
+                // Debug logging
+                if (isActive) {
+                  console.log('✅ Source is active:', source, 'matched with:', activeDataSources);
+                } else if (activeDataSources.length > 0) {
+                  console.log('❌ Source not matched:', source, 'vs activeDataSources:', activeDataSources);
+                }
+                
+                // Also check if manually selected
+                const isManuallySelected = selectedSources.includes(key);
+                const isChecked = isActive || isManuallySelected;
                 return (
                   <div key={key} className="flex items-start space-x-3">
                     <Checkbox
                       id={key}
                       checked={isChecked}
                       onCheckedChange={() => toggleSource(source, index)}
-                      className="mt-0.5 border-[#e5e7eb] data-[state=checked]:bg-[#0466C8] data-[state=checked]:border-[#0466C8]"
+                      disabled={isActive} // Disable if actively used (read-only)
+                      className={`mt-0.5 border-[#e5e7eb] data-[state=checked]:bg-[#0466C8] data-[state=checked]:border-[#0466C8] ${
+                        isActive ? 'opacity-75' : ''
+                      }`}
                     />
                     <Label
                       htmlFor={key}
-                      className="text-sm text-[#1a1a1a] cursor-pointer leading-tight"
+                      className={`text-sm cursor-pointer leading-tight ${
+                        isActive ? 'text-[#0466C8] font-medium' : 'text-[#1a1a1a]'
+                      }`}
                     >
                       {source}
+                      {isActive && (
+                        <span className="ml-2 text-xs text-[#0466C8]">(in use)</span>
+                      )}
                     </Label>
                   </div>
                 );
