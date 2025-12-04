@@ -1,16 +1,20 @@
 import { ArrowUp, Paperclip, Plus } from "lucide-react";
-import { useState, KeyboardEvent } from "react";
+import { useState, KeyboardEvent, useRef } from "react";
 import { AutonomySlider } from "./AutonomySlider";
+import { FileUploadHandler, UploadedFile } from "./FileUploadHandler";
 
 interface PromptInputProps {
   onSubmit?: (text: string) => void;
   showAutonomySlider?: boolean;
   onAutonomyChange?: (level: "search" | "research" | "deep research") => void;
+  onFilesChange?: (files: UploadedFile[]) => void;
 }
 
-export function PromptInput({ onSubmit, showAutonomySlider = false, onAutonomyChange }: PromptInputProps) {
+export function PromptInput({ onSubmit, showAutonomySlider = false, onAutonomyChange, onFilesChange }: PromptInputProps) {
   const [value, setValue] = useState("");
   const [isSliderVisible, setIsSliderVisible] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = () => {
     if (value.trim() && onSubmit) {
@@ -27,10 +31,42 @@ export function PromptInput({ onSubmit, showAutonomySlider = false, onAutonomyCh
     }
   };
 
+  const handleFileSelect = (files: UploadedFile[]) => {
+    setUploadedFiles(files);
+    onFilesChange?.(files);
+  };
+
+  const handleFileButtonClick = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
     <div className="relative">
       <div className="flex items-center gap-2 bg-[#f9fafb] rounded-lg px-4 py-3 border border-[#e5e7eb] focus-within:border-[#0466C8] transition-colors">
-        <button className="p-1 hover:bg-[#e5e7eb] rounded transition-colors">
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          accept=".json,.csv,.txt"
+          onChange={(e) => {
+            const files = Array.from(e.target.files || []);
+            const uploaded: UploadedFile[] = files.map((file) => ({
+              id: `${Date.now()}-${Math.random()}`,
+              file,
+              name: file.name,
+              size: file.size,
+              type: file.type || "application/octet-stream",
+              status: "success",
+            }));
+            handleFileSelect([...uploadedFiles, ...uploaded]);
+          }}
+          className="hidden"
+        />
+        <button 
+          onClick={handleFileButtonClick}
+          className="p-1 hover:bg-[#e5e7eb] rounded transition-colors"
+          title="Attach files"
+        >
           <Paperclip className="w-5 h-5 text-[#6b7280]" />
         </button>
         {showAutonomySlider && (
@@ -66,6 +102,31 @@ export function PromptInput({ onSubmit, showAutonomySlider = false, onAutonomyCh
       {/* Autonomy Slider - shows only when plus icon is clicked */}
       {showAutonomySlider && isSliderVisible && (
         <AutonomySlider onAutonomyChange={onAutonomyChange} />
+      )}
+
+      {/* File Upload Display */}
+      {uploadedFiles.length > 0 && (
+        <div className="mt-2 space-y-1">
+          {uploadedFiles.map((file) => (
+            <div
+              key={file.id}
+              className="flex items-center gap-2 px-2 py-1 bg-[#f8f9fa] rounded text-xs text-[#666666]"
+            >
+              <Paperclip className="w-3 h-3" />
+              <span className="flex-1 truncate">{file.name}</span>
+              <button
+                onClick={() => {
+                  const updated = uploadedFiles.filter((f) => f.id !== file.id);
+                  setUploadedFiles(updated);
+                  onFilesChange?.(updated);
+                }}
+                className="text-[#999999] hover:text-[#666666]"
+              >
+                ×
+              </button>
+            </div>
+          ))}
+        </div>
       )}
     </div>
   );

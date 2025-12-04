@@ -182,7 +182,7 @@ export function ActionPlan({ answer, onPlanGenerated }: ActionPlanProps) {
               key={action.id}
               className="border border-[#e5e7eb] rounded-lg p-4 hover:border-[#0466C8] transition-colors"
             >
-              <div className="flex items-start justify-between mb-2">
+              <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <CheckCircle2 className="w-4 h-4 text-[#059669]" />
@@ -203,15 +203,6 @@ export function ActionPlan({ answer, onPlanGenerated }: ActionPlanProps) {
                     {action.priority}
                   </span>
                 </div>
-              </div>
-              <div className="flex justify-end mt-3 pt-3 border-t border-[#e5e7eb]">
-                <Button
-                  onClick={() => handleDeployAgent(action.agent)}
-                  className="flex items-center gap-2 bg-[#0466C8] hover:bg-[#0353a4] text-white px-4 py-1.5 rounded-lg transition-colors text-xs"
-                >
-                  <Rocket className="w-3 h-3" />
-                  Deploy Agent
-                </Button>
               </div>
             </div>
           ))}
@@ -239,7 +230,16 @@ export function ActionPlan({ answer, onPlanGenerated }: ActionPlanProps) {
                       </div>
                     )}
                   </div>
-                  <ArrowRight className="w-4 h-4 text-[#999999]" />
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <Button
+                      onClick={() => handleDeployAgent(step.agent)}
+                      className="flex items-center gap-2 bg-[#0466C8] hover:bg-[#0353a4] text-white px-3 py-1.5 rounded-lg transition-colors text-xs"
+                    >
+                      <Rocket className="w-3 h-3" />
+                      Deploy Agent
+                    </Button>
+                    <ArrowRight className="w-4 h-4 text-[#999999]" />
+                  </div>
                 </div>
               ))}
             </div>

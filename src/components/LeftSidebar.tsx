@@ -1,5 +1,7 @@
 import { Plus, Home, Database, BookOpen, Network, HelpCircle, Settings, Search, MessageSquare, Zap, Workflow, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
+import { HelpDialog } from "./HelpDialog";
+import { SettingsDialog } from "./SettingsDialog";
 
 interface LeftSidebarProps {
   activeItem?: string;
@@ -10,6 +12,8 @@ interface LeftSidebarProps {
 
 export function LeftSidebar({ activeItem = "Home", onNavigate, isCollapsed = false, onToggleCollapse }: LeftSidebarProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const menuItems = [
     { icon: Plus, label: "New Chat", special: true },
@@ -133,9 +137,22 @@ export function LeftSidebar({ activeItem = "Home", onNavigate, isCollapsed = fal
       <div className="border-t border-[#002855] p-3 space-y-1">
         {bottomItems.map((item) => {
           const Icon = item.icon;
+          const handleClick = (e: React.MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (item.label === "Help") {
+              console.log("Opening Help dialog");
+              setHelpOpen(true);
+            } else if (item.label === "Settings") {
+              console.log("Opening Settings dialog");
+              setSettingsOpen(true);
+            }
+          };
           return (
             <button
               key={item.label}
+              onClick={handleClick}
+              type="button"
               className={`w-full flex items-center ${isCollapsed ? 'justify-center' : 'gap-3'} px-3 py-2.5 rounded-lg text-[#979DAC] hover:bg-[#002855]/50 hover:text-white transition-colors text-left`}
               title={isCollapsed ? item.label : undefined}
             >
@@ -145,6 +162,16 @@ export function LeftSidebar({ activeItem = "Home", onNavigate, isCollapsed = fal
           );
         })}
       </div>
+
+      {/* Dialogs */}
+      <HelpDialog open={helpOpen} onOpenChange={(open) => {
+        console.log("HelpDialog state change:", open);
+        setHelpOpen(open);
+      }} />
+      <SettingsDialog open={settingsOpen} onOpenChange={(open) => {
+        console.log("SettingsDialog state change:", open);
+        setSettingsOpen(open);
+      }} />
     </div>
   );
 }

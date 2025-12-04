@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { Database, Link2, ChevronRight, Search, Download, Plus, X, Grid } from "lucide-react";
+import { Database, Link2, ChevronRight, Search, Upload, Plus, X, Grid } from "lucide-react";
 import { getOntologyData } from "../services/claudeApi";
 import * as d3 from "d3";
+import { OntologyImportDialog } from "./OntologyImportDialog";
 
 interface OntologyNode {
   id: string;
@@ -43,6 +44,7 @@ export function OntologyVisualization() {
   const [editingField, setEditingField] = useState<string | null>(null);
   const [newFieldValue, setNewFieldValue] = useState("");
   const [isAddingField, setIsAddingField] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
   const simulationRef = useRef<any>(null);
 
@@ -97,17 +99,41 @@ export function OntologyVisualization() {
       y: height / 2
     }));
 
-    const graphLinks = relationships.map(rel => ({
-      source: nodes.find(n => n.type === rel.from)?.id || rel.from,
-      target: nodes.find(n => n.type === rel.to)?.id || rel.to,
-      relationship: rel.relationship
-    }));
+    // Create graph links - only include links where both source and target nodes exist
+    const graphLinks = relationships
+      .map(rel => {
+        const sourceNode = nodes.find(n => n.type === rel.from);
+        const targetNode = nodes.find(n => n.type === rel.to);
+        
+        if (!sourceNode || !targetNode) {
+          console.warn(`Skipping relationship: ${rel.from} -> ${rel.to} (one or both nodes not found)`);
+          return null;
+        }
+        
+        return {
+          source: sourceNode.id,
+          target: targetNode.id,
+          relationship: rel.relationship,
+          description: rel.description
+        };
+      })
+      .filter((link): link is { source: string; target: string; relationship: string; description: string } => link !== null);
 
     console.log('Initializing D3 graph with', graphNodes.length, 'nodes and', graphLinks.length, 'links');
+    console.log('Graph nodes:', graphNodes.map(n => ({ id: n.id, type: n.type })));
+    console.log('Graph links:', graphLinks);
 
     // Create force simulation
+    // Convert graphLinks to use node objects instead of IDs for D3
+    const linksWithNodes = graphLinks.map(link => ({
+      source: graphNodes.find(n => n.id === link.source) || graphNodes[0],
+      target: graphNodes.find(n => n.id === link.target) || graphNodes[0],
+      relationship: link.relationship,
+      description: link.description
+    })).filter(link => link.source && link.target);
+
     const simulation = d3.forceSimulation(graphNodes as any)
-      .force("link", d3.forceLink(graphLinks).id((d: any) => d.id).distance(150))
+      .force("link", d3.forceLink(linksWithNodes).id((d: any) => d.id).distance(150))
       .force("charge", d3.forceManyBody().strength(-400))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("collision", d3.forceCollide().radius(50));
@@ -117,7 +143,7 @@ export function OntologyVisualization() {
     // Create links with arrows
     const link = svg.append("g")
       .selectAll("line")
-      .data(graphLinks)
+      .data(linksWithNodes)
       .join("line")
       .attr("stroke", "#999")
       .attr("stroke-width", 2)
@@ -183,12 +209,12 @@ export function OntologyVisualization() {
         .attr("y2", (d: any) => d.target.y);
 
       node
-        .attr("cx", (d: any) => d.x)
-        .attr("cy", (d: any) => d.y);
+        .attr("cx", (d: any) => d.x || width / 2)
+        .attr("cy", (d: any) => d.y || height / 2);
 
       label
-        .attr("x", (d: any) => d.x)
-        .attr("y", (d: any) => d.y);
+        .attr("x", (d: any) => d.x || width / 2)
+        .attr("y", (d: any) => d.y || height / 2);
     });
 
     // Drag functions
@@ -305,9 +331,12 @@ export function OntologyVisualization() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <button className="flex items-center gap-2 px-3 py-2 text-sm border border-[#e5e7eb] rounded-lg hover:bg-[#f8f9fa] transition-colors">
-              <Download className="w-4 h-4" />
-              Export
+            <button 
+              onClick={() => setIsImportOpen(true)}
+              className="flex items-center gap-2 px-3 py-2 text-sm border border-[#e5e7eb] rounded-lg hover:bg-[#f8f9fa] transition-colors"
+            >
+              <Upload className="w-4 h-4" />
+              Import
             </button>
           </div>
         </div>
@@ -328,23 +357,32 @@ export function OntologyVisualization() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden min-w-0">
         {/* Visualization Area */}
         <div 
-          className="bg-[#fafafa] relative transition-all duration-300 ease-in-out flex-1"
+          className="bg-[#fafafa] relative transition-all duration-300 ease-in-out flex-1 min-w-0 overflow-hidden"
           style={{ 
-            minWidth: 0 // Allows flexbox to shrink properly
+            minWidth: selectedNode ? '400px' : '0' // Ensure minimum space for visualization
           }}
         >
           {/* D3 Force-Directed Graph */}
-          <div className="flex items-center justify-center w-full h-full p-8">
+          <div className="flex items-center justify-center w-full h-full p-4 sm:p-8 overflow-auto">
             {nodes.length > 0 ? (
-              <svg
-                ref={svgRef}
-                width="1000"
-                height="600"
-                className="border border-[#e5e7eb] rounded-lg bg-white shadow-lg"
-              />
+              <div className="w-full h-full flex items-center justify-center">
+                <svg
+                  ref={svgRef}
+                  width="1000"
+                  height="600"
+                  className="border border-[#e5e7eb] rounded-lg bg-white shadow-lg"
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    width: 'auto',
+                    height: 'auto'
+                  }}
+                  preserveAspectRatio="xMidYMid meet"
+                />
+              </div>
             ) : (
               <div className="text-center p-8 bg-white rounded-lg shadow-md">
                 <p className="text-sm text-[#9ca3af] mb-2">Loading ontology data...</p>
@@ -374,11 +412,10 @@ export function OntologyVisualization() {
 
         {/* Details Panel - Side by Side */}
         <div 
-          className="bg-white border-l border-[#e5e7eb] overflow-y-auto transition-all duration-300 ease-in-out relative"
+          className="bg-white border-l border-[#e5e7eb] overflow-y-auto transition-all duration-300 ease-in-out relative flex-shrink-0"
           style={{ 
-            width: selectedNode ? '448px' : '0',
+            width: selectedNode ? '320px' : '0',
             opacity: selectedNode ? 1 : 0,
-            flexShrink: 0,
             pointerEvents: selectedNode ? 'auto' : 'none' // Don't block interactions when closed
           }}
         >
@@ -582,6 +619,19 @@ export function OntologyVisualization() {
           )}
         </div>
       </div>
+
+      {/* Import Dialog */}
+      <OntologyImportDialog
+        open={isImportOpen}
+        onOpenChange={setIsImportOpen}
+        existingNodes={nodes}
+        existingRelationships={relationships}
+        onImport={(newNodes, newRelationships) => {
+          setNodes(newNodes);
+          setRelationships(newRelationships);
+          // The D3 graph will automatically re-render when nodes/relationships change
+        }}
+      />
     </div>
   );
 }

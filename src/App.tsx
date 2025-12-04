@@ -47,7 +47,7 @@ export default function App() {
       
       {/* Main Content Area */}
       {activeView === "Ontology" ? (
-        <div className="flex-[4]">
+        <div className="flex-[4] min-w-0 overflow-hidden">
           <OntologyVisualization />
         </div>
       ) : (

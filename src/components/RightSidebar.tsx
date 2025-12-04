@@ -1,6 +1,6 @@
 import { WorkflowAction } from "./WorkflowBuilder";
-import { X, Upload, CheckCircle } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import { X, Upload, CheckCircle, FileText, Trash2 } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
 import { Checkbox } from "./ui/checkbox";
 import { Label } from "./ui/label";
 
@@ -9,11 +9,21 @@ interface RightSidebarProps {
   activeDataSources?: string[];
 }
 
+interface UploadedFile {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+}
+
 export function RightSidebar({ workflowActions = [], activeDataSources = [] }: RightSidebarProps) {
   const [activeTab, setActiveTab] = useState<"sources" | "overview">("sources");
   const [isOpen, setIsOpen] = useState(true);
   const [selectedSources, setSelectedSources] = useState<string[]>([]);
-  const [activeFilters, setActiveFilters] = useState<string[]>(["Research Papers-0"]);
+  const [activeFilters, setActiveFilters] = useState<string[]>(["Ontology Data-1"]);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Debug logging
   useEffect(() => {
@@ -35,7 +45,7 @@ export function RightSidebar({ workflowActions = [], activeDataSources = [] }: R
     });
   }, [activeDataSources]);
 
-  const filters = ["Research Papers", "Ontoloop Data", "Web Scraping"];
+  const filters = ["Research Papers", "Ontology Data", "Web Scraping"];
   // Actual database files from the ontology/data
   const sources = [
     "products.json",
@@ -101,6 +111,46 @@ export function RightSidebar({ workflowActions = [], activeDataSources = [] }: R
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeDataSources]);
+
+  const handleFileSelect = (files: FileList | null) => {
+    if (!files) return;
+
+    const newFiles: UploadedFile[] = Array.from(files).map((file) => ({
+      id: `${Date.now()}-${Math.random()}`,
+      name: file.name,
+      size: file.size,
+      type: file.type || "application/octet-stream",
+    }));
+
+    setUploadedFiles((prev) => [...prev, ...newFiles]);
+  };
+
+  const handleRemoveFile = (fileId: string) => {
+    setUploadedFiles((prev) => prev.filter((f) => f.id !== fileId));
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = e.dataTransfer.files;
+    handleFileSelect(files);
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  };
 
   if (!isOpen) {
     return (
@@ -247,16 +297,64 @@ export function RightSidebar({ workflowActions = [], activeDataSources = [] }: R
             {/* Upload Area */}
             <div className="space-y-2">
               <div className="text-xs text-[#9ca3af]">Upload files</div>
-              <label className="border-2 border-dashed border-[#e5e7eb] bg-[#f9fafb] rounded-lg h-32 flex flex-col items-center justify-center hover:border-[#5b4cdb] transition-colors cursor-pointer">
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-lg h-32 flex flex-col items-center justify-center transition-colors cursor-pointer ${
+                  isDragging
+                    ? "border-[#0466C8] bg-[#f0f7ff]"
+                    : "border-[#e5e7eb] bg-[#f9fafb] hover:border-[#5b4cdb]"
+                }`}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  multiple
+                  accept=".json,.csv,.txt"
+                  onChange={(e) => handleFileSelect(e.target.files)}
+                />
                 <Upload className="w-6 h-6 text-[#9ca3af] mb-2" />
                 <div className="text-[#9ca3af] text-xs text-center px-4">
                   Drag & drop files here
                   <div className="mt-1">
-                    <span className="text-[#5b4cdb]">Upload Data</span>
+                    <span className="text-[#5b4cdb]">or click to browse</span>
                   </div>
                 </div>
-                <input type="file" className="hidden" multiple />
-              </label>
+              </div>
+
+              {/* Uploaded Files List */}
+              {uploadedFiles.length > 0 && (
+                <div className="space-y-2 mt-3">
+                  <div className="text-xs text-[#9ca3af]">Uploaded files</div>
+                  <div className="space-y-1">
+                    {uploadedFiles.map((file) => (
+                      <div
+                        key={file.id}
+                        className="flex items-center gap-2 p-2 bg-[#f8f9fa] rounded border border-[#e5e7eb]"
+                      >
+                        <FileText className="w-4 h-4 text-[#666666] shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs text-[#1a1a1a] truncate">{file.name}</div>
+                          <div className="text-xs text-[#666666]">{formatFileSize(file.size)}</div>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveFile(file.id);
+                          }}
+                          className="p-1 hover:bg-[#fee2e2] rounded transition-colors"
+                          title="Remove file"
+                        >
+                          <Trash2 className="w-3 h-3 text-[#dc2626]" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
